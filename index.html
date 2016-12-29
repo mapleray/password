@@ -1,0 +1,123 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta charset="utf-8" />
+    <title>Password Generator</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css" integrity="sha384-AysaV+vQoT3kOAXZkl02PThvDr8HYKPZhNT5h/CXfBThSRXQ6jW5DO2ekP5ViFdi" crossorigin="anonymous">
+<style>
+.matrix {
+  font-size: 1.3rem;
+}
+</style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row mt-3">
+        <div class="logo">
+          <pre>
+                                                  _
+ _ __    __ _  ___  ___ __      __ ___   _ __  __| |
+| '_ \  / _` |/ __|/ __|\ \ /\ / // _ \ | '__|/ _` |
+| |_) || (_| |\__ \\__ \ \ V  V /| (_) || |  | (_| |
+| .__/  \__,_||___/|___/  \_/\_/  \___/ |_|   \__,_|
+|_|
+          </pre>
+        </div>
+      </div>
+      <div class="row">
+        <div class="password-form col-lg-4 offset-lg-4 col-md-6 offset-md-3 col-sm-8 offset-sm-2 col-xs-10 offset-xs-1">
+          <div class="password-body">
+              <dl class="form-group">
+                  <label>Email</label>
+                  <input id="email" class="form-control input-block" type="email" placeholder="username/email">
+              </dl>
+              <dl class="form-group">
+                  <label>Website</label>
+                  <input id="web" class="form-control input-block" type="text" placeholder="website/app">
+              </dl>
+              <dl class="form-group">
+                  <label>Key</label>
+                  <input id="key" class="form-control input-block" type="password" placeholder="password">
+              </dl>
+              <dl class="form-group">
+                  <div class="form-actions">
+                      <button id="generate" type="button" class="btn btn-primary btn-block">Generate</button>
+                  </div>
+              </dl>
+              <div class="input-group">
+                <pre class="matrix"><code id="password"></code></pre>
+
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="text/javascript" src="js/jquery-3.1.1.min.js"></script>
+    <script type="text/javascript" src="js/sha.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.3.7/js/tether.min.js" integrity="sha384-XTs3FgkjiBgo8qjEjBk0tGmf3wPrWtA6coPfQDfFEY8AnYJwjalXCiosYRBIBZX8" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/js/bootstrap.min.js" integrity="sha384-BLiI7JTZm+JWlgKa0M0kGRpJbF2J8q+qreVrKBC47e3K6BW78kGLrCkeRX6I9RoK" crossorigin="anonymous"></script>
+    <script>
+    $(document).ready(function() {
+      function hexToBinary(s) {
+        var i, k, part, ret = '';
+        // lookup table for easier conversion. '0' characters are padded for '1' to '7'
+        var lookupTable = {
+            '0': '0000', '1': '0001', '2': '0010', '3': '0011', '4': '0100',
+            '5': '0101', '6': '0110', '7': '0111', '8': '1000', '9': '1001',
+            'a': '1010', 'b': '1011', 'c': '1100', 'd': '1101',
+            'e': '1110', 'f': '1111',
+            'A': '1010', 'B': '1011', 'C': '1100', 'D': '1101',
+            'E': '1110', 'F': '1111'
+        };
+        for (i = 0; i < s.length; i += 1) {
+            if (lookupTable.hasOwnProperty(s[i])) {
+                ret += lookupTable[s[i]];
+            } else {
+                return { valid: false };
+            }
+        }
+        return { valid: true, result: ret };
+      }
+
+      function split(s, length) {
+        var bin = [];
+        for(var i=0; i<s.length; i+=length) {
+          bin.push(s.slice(0+i, length+i));
+        }
+        return bin;
+      }
+
+      $('#generate').click(function() {
+        var email = $('#email').val().trim();
+        var web = $('#web').val().trim();
+        var key = $('#key').val().trim();
+
+        var shaObj = new jsSHA('SHA-512', 'TEXT');
+        shaObj.update(email);
+        var emailHash = shaObj.getHash('HEX');
+
+        var shaObj = new jsSHA('SHA-512', 'TEXT');
+        shaObj.setHMACKey(key, 'TEXT');
+        shaObj.update(emailHash + web);
+        var hex = shaObj.getHMAC('HEX');
+
+        var binary = hexToBinary(hex);
+        var binArray = [];
+        split(binary.result, 7).forEach(function(element) {
+          binArray.push(String.fromCharCode(parseInt(element, 2)%94+33));
+
+        });
+
+        var s = '';
+        split(binArray, 15).forEach(function(e) {
+          s += e.join('')+'\n';
+        });
+        $('#password').html(s.replace('>', '&gt;').replace('<', '&lt;')).parent().addClass('alert alert-success');
+
+      });
+    });
+    </script>
+  </body>
+</html>
