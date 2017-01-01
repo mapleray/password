@@ -89,6 +89,21 @@
         return bin;
       }
 
+      var entityMap = {
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': '&quot;',
+        "'": '&#39;',
+        "/": '&#x2F;'
+      }
+
+      function escapeHtml(string) {
+        return String(string).replace(/[&<>"'\/]/g, function (s) {
+          return entityMap[s];
+        });
+      }
+
       $('#generate').click(function() {
         var email = $('#email').val().trim();
         var web = $('#web').val().trim();
@@ -114,7 +129,7 @@
         split(binArray, 15).forEach(function(e) {
           s += e.join('')+'\n';
         });
-        $('#password').html(s.replace('>', '&gt;').replace('<', '&lt;')).parent().addClass('alert alert-success');
+        $('#password').html(escapeHtml(s)).parent().addClass('alert alert-success');
 
       });
     });
