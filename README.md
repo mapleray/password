@@ -17,3 +17,7 @@ Password Generator
 2. `hex string` ---> `binary array` (7bit for each group, use leading zero to keep binary's width is 512bits).
 3. Convert element in `binary array` to ASCII character in range(`DECIMAL 33` to `DECIMAL 126`).
 4. Generate `15*5` matrix and choose your password according to your own order.
+
+# More
+
+https://www.v2ex.com/t/331896
